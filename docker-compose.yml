@@ -1,0 +1,23 @@
+# Backend FastAPI + Scikit-learn en Docker.
+# La base de datos NO corre en Docker: es el MySQL/MariaDB del equipo (XAMPP),
+# al que el contenedor accede mediante host.docker.internal.
+services:
+  backend:
+    build: ./backend
+    container_name: liga-backend
+    ports:
+      - "8001:8000"   # 8001 en el equipo (el 8000 lo usa otro contenedor local)
+    environment:
+      BD_HOST: host.docker.internal
+      BD_PUERTO: "3306"
+      BD_USUARIO: tfg_ligas
+      BD_CONTRASENA: tfg_ligas_2026
+      BD_NOMBRE: liga_amateur_db
+      CLAVE_TOKEN: cambiar-esta-clave-en-produccion-tfg-2026
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./backend/aplicacion:/codigo/aplicacion
+      - ./backend/pruebas:/codigo/pruebas
+    command: ["uvicorn", "aplicacion.principal:aplicacion", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    restart: unless-stopped
